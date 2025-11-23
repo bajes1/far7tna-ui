@@ -1,40 +1,42 @@
 // src/auth/authStore.ts
-
-export interface AuthUser {
+export type AuthUser = {
   id: string;
   fullName: string;
   email: string;
-  role: string; // "Admin" | "Vendor" | "Customer" | ...
-}
+  role: string;
+};
 
-export interface AuthResult {
+export type AuthResult = {
   accessToken: string;
   refreshToken: string;
   user: AuthUser;
-}
+};
 
-const ACCESS_TOKEN_KEY = "far7tna_access_token";
-const REFRESH_TOKEN_KEY = "far7tna_refresh_token";
+const ACCESS_KEY = "far7tna_access";
+const REFRESH_KEY = "far7tna_refresh";
 const USER_KEY = "far7tna_user";
 
+// حفظ بيانات الدخول
 export function setAuth(result: AuthResult) {
-  localStorage.setItem(ACCESS_TOKEN_KEY, result.accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, result.refreshToken);
+  localStorage.setItem(ACCESS_KEY, result.accessToken);
+  localStorage.setItem(REFRESH_KEY, result.refreshToken);
   localStorage.setItem(USER_KEY, JSON.stringify(result.user));
 }
 
+// مسح بيانات الدخول
 export function clearAuth() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(ACCESS_KEY);
+  localStorage.removeItem(REFRESH_KEY);
   localStorage.removeItem(USER_KEY);
 }
 
+// قراءة الـ Tokens
 export function getAccessToken(): string | null {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  return localStorage.getItem(ACCESS_KEY);
 }
 
 export function getRefreshToken(): string | null {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  return localStorage.getItem(REFRESH_KEY);
 }
 
 export function getCurrentUser(): AuthUser | null {
@@ -45,8 +47,4 @@ export function getCurrentUser(): AuthUser | null {
   } catch {
     return null;
   }
-}
-
-export function isAuthenticated(): boolean {
-  return !!getAccessToken();
 }

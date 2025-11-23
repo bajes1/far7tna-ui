@@ -1,8 +1,19 @@
-// RequireRole.tsx
-import { Navigate, Outlet } from "react-router-dom";
-import { getRole } from "./token";
-export default function RequireRole({ roles }: { roles: string[] }) {
-  const role = getRole();
-  if (!role || !roles.includes(role)) return <Navigate to="/login" replace />;
-  return <Outlet />;
+import { Navigate, useLocation } from "react-router-dom";
+import type { ReactNode } from "react";
+import { useAuth } from "./useAuth";
+
+type Props = {
+  children: ReactNode;
+  roles: string[];
+};
+
+export default function RequireRole({ children, roles }: Props) {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user || !roles.includes(user.role)) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return <>{children}</>;
 }

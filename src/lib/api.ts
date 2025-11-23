@@ -1,6 +1,5 @@
 // src/api.ts
-import axios, { AxiosError } from "axios";
-import type { InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 import type { AuthResult } from "../auth/authStore";
 import {
@@ -10,9 +9,8 @@ import {
   clearAuth,
 } from "../auth/authStore";
 
-// 👇 غيّرها من .env إذا حاب
-const baseURL =
-  import.meta.env.VITE_API_URL ?? "https://localhost:5001";
+// 👇 تقدر تغيّرها من .env
+const baseURL = import.meta.env.VITE_API_URL ?? "https://localhost:5001";
 
 // إنشاء instance واحد من Axios
 export const api = axios.create({
@@ -38,7 +36,6 @@ async function refreshAccessToken(): Promise<string | null> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) return null;
 
-  // منع تكرار طلب refresh أكثر من مرة في نفس الوقت
   if (!refreshPromise) {
     isRefreshing = true;
     refreshPromise = (async () => {
@@ -51,7 +48,7 @@ async function refreshAccessToken(): Promise<string | null> {
         const result = res.data;
         setAuth(result);
         return result.accessToken;
-      } catch (err) {
+      } catch {
         clearAuth();
         return null;
       } finally {
