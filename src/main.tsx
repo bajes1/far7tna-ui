@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./app/App";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import AuthProvider from "./auth/AuthProvider";
+import AuthProvider from "../auth/AuthProvider";
 
 const theme = createTheme({ palette:{mode:"light"}, shape:{borderRadius:12} });
 
