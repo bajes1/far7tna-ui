@@ -8,11 +8,20 @@ type Props = {
 };
 
 export default function RequireRole({ children, roles }: Props) {
-  const { user } = useAuth();
+  const { isAuthenticated, roles: userRoles } = useAuth();
   const location = useLocation();
 
-  if (!user || !roles.includes(user.role)) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+  const hasRole =
+    isAuthenticated && userRoles.some((r) => roles.includes(r));
+
+  if (!hasRole) {
+    return (
+      <Navigate
+        to="/login"
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;

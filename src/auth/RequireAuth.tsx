@@ -7,11 +7,17 @@ type Props = {
 };
 
 export default function RequireAuth({ children }: Props) {
-  const { isLoggedIn } = useAuth();
+  const { isAuthenticated } = useAuth();
   const location = useLocation();
 
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+  if (!isAuthenticated) {
+    return (
+      <Navigate
+        to="/login"
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;

@@ -1,37 +1,69 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  getAuth,
+  setAuth,
+  clearAuth,
+  type AuthResult,
+} from "./authStore";
 
-type UserInfo = { id: string; email: string; fullName: string; role: "Admin"|"Vendor"|"Customer" };
-type AuthCtx = {
-  user: UserInfo | null;
-  setUser: (u: UserInfo|null) => void;
+export type AuthUser = {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+};
+
+export type AuthContextValue = {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  roles: string[];
+  login: (result: AuthResult) => void;
   logout: () => void;
 };
-const Ctx = createContext<AuthCtx | null>(null);
 
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserInfo | null>(() => {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  });
-  const value = useMemo(() => ({
-    user,
-    setUser: (u: UserInfo|null) => {
-      setUser(u);
-      if (u) localStorage.setItem("user", JSON.stringify(u));
-      else localStorage.removeItem("user");
-    },
-    logout: () => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      setUser(null);
-      location.href = "/login";
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  // تحميل المستخدم من localStorage عند أول تحميل
+  useEffect(() => {
+    const stored = getAuth();
+    if (stored?.user) {
+      setUser(stored.user);
     }
-  }), [user]);
+  }, []);
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  const login = (result: AuthResult) => {
+    setAuth(result);
+    setUser(result.user);
+  };
+
+  const logout = () => {
+    clearAuth();
+    setUser(null);
+  };
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      roles: user?.role ? [user.role] : [],
+      login,
+      logout,
+    }),
+    [user]
+  );
+
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
 }
-export const useAuth = () => {
-  const c = useContext(Ctx);
-  if (!c) throw new Error("useAuth outside AuthProvider");
-  return c;
-};
